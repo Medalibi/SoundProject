@@ -118,6 +118,7 @@ handles.file = uigetfile('*.wav');
 if ~isequal(handles.file, 0)
     [handles.x,handles.Fe,handles.n]=wavread(handles.file);
     subplot(2,3,3),plot(handles.x);
+    set(handles.filecontainer,'String',handles.file);
 
 end
 guidata(hObject, handles);
@@ -373,6 +374,8 @@ function playcan_Callback(hObject, eventdata, handles)
 % hObject    handle to playcan (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+handles = guidata(hObject);
+sound(handles.x1,handles.Fe)
 
 
 % --- Executes on button press in playcod.
