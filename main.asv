@@ -117,10 +117,7 @@ handles = guidata(hObject);
 handles.file = uigetfile('*.wav');
 if ~isequal(handles.file, 0)
     [handles.x,handles.Fe,handles.n]=wavread(handles.file);
-    subplot(2,3,3),plot(handles.x);
-
 end
-guidata(hObject, handles);
 
 
 % --------------------------------------------------------------------
@@ -205,11 +202,10 @@ function charge_Callback(hObject, eventdata, handles)
 % hObject    handle to charge (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-handles = guidata(hObject);
-handles.file = get(handles.filecontainer,'String');
-[handles.x,handles.Fe,handles.n]= wavread(handles.file);
-subplot(2,3,3),plot(handles.x);
-guidata(hObject, handles);
+
+file = get(handles.filecontainer,'String');
+[x,Fe,n]= wavread(file);
+subplot(2,3,3),plot(x);
 
 
 
@@ -316,29 +312,28 @@ function CAN_Callback(hObject, eventdata, handles)
 % hObject    handle to CAN (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-handles = guidata(hObject);
+
 
 %sound = get(handles.filecontainer,'String');
 %[x,Fe,n]= wavread(sound);
 
-handles.fc=handles.Fe/2;
+fc=Fe/2;
 %wc=2*pi*fc;
 opr= get(handles.canlist,'value');
 
 if opr == 1
-    [handles.M,handles.wc] = buttord(10/handles.fc,80/handles.fc,3,10); % Filtre pass bas 
-    [handles.num,handles.dem]=butter(handles.M,handles.wc,'low');
+    [M,wc] = buttord(10/fc,80/fc,3,10); % Filtre pass bas 
+    [num,dem]=butter(M,wc,'low');
 elseif opr == 2
-    [handles.M,handles.wc] = buttord(80/handles.fc,10/handles.fc,3,10); % Filtre pass haut 
-    [handles.num,handles.dem]=butter(handles.M,handles.wc,'high');
+    [M,wc] = buttord(80/fc,10/fc,3,10); % Filtre pass haut 
+    [num,dem]=butter(M,wc,'high');
 elseif opr == 3
     
     
 end;
 
-handles.x1=filter(handles.num,handles.dem,handles.x);
-subplot(2,3,4),plot(handles.x1);
-guidata(hObject, handles);
+x1=filter(num,dem,x);
+subplot(2,3,4),plot(x1);
 
 
 
