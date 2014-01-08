@@ -59,7 +59,7 @@ guidata(hObject, handles);
 
 % This sets up the initial plot - only do when we are invisible
 % so window can get raised using main.
-if strcmp(get(hObject,'Visible'),'off')
+if strcmp(get(hObject,'Visible'),'on')
     plot(rand(5));
 end
 
@@ -78,26 +78,26 @@ function varargout = main_OutputFcn(hObject, eventdata, handles)
 varargout{1} = handles.output;
 
 % --- Executes on button press in pushbutton1.
-function pushbutton1_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-axes(handles.axes1);
-cla;
-
-popup_sel_index = get(handles.codeurlist, 'Value');
-switch popup_sel_index
-    case axes1
-        plot(sin(1:0.01:25.99));
-    case axes2
-        plot(sin(1:0.01:25.99));
-    case axes3
-        plot(sin(1:0.01:25.99));
-    case axes4
-        plot(sin(1:0.01:25.99));
-    case 5
-        plot(sin(1:0.01:25.99));
-end
+% function pushbutton1_Callback(hObject, eventdata, handles)
+% % hObject    handle to pushbutton1 (see GCBO)
+% % eventdata  reserved - to be defined in a future version of MATLAB
+% % handles    structure with handles and user data (see GUIDATA)
+% 
+% cla;
+% 
+% popup_sel_index = get(handles.codeurlist, 'Value');
+% switch popup_sel_index
+%     case axes1
+%         plot(sin(1:0.01:25.99));
+%     case axes2
+%         plot(sin(1:0.01:25.99));
+%     case axes3
+%         plot(sin(1:0.01:25.99));
+%     case axes4
+%         plot(sin(1:0.01:25.99));
+%     case 5
+%         plot(sin(1:0.01:25.99));
+% end
 
 
 % --------------------------------------------------------------------
@@ -199,10 +199,10 @@ function charge_Callback(hObject, eventdata, handles)
 % hObject    handle to charge (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-axes1= findobj(gcf,'Tag','axes1');
+
 sound = get(handles.filecontainer,'String');
 [x,Fe,n]= wavread(sound);
-plot(axes1,x);
+subplot(2,3,3),plot(x);
 
 
 
@@ -311,6 +311,30 @@ function CAN_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
+sound = get(handles.filecontainer,'String');
+[x,Fe,n]= wavread(sound);
+
+fc=Fe/2;
+%wc=2*pi*fc;
+opr= get(handles.canlist,'value');
+
+if opr==1
+    [M,wc] = buttord(10/fc,80/fc,3,10); % Filtre pass bas 
+    [num,dem]=butter(M,wc,'low');
+elseif opr ==2
+    [M,wc] = buttord(80/fc,10/fc,3,10); % Filtre pass haut 
+    [num,dem]=butter(M,wc,'high');
+    
+end;
+
+x1=filter(num,dem,x);
+subplot(2,3,4),plot(x1);
+subplot(2,3,5),plot(x1);
+subplot(2,3,6),plot(x1);
+
+
+
+
 % --- Executes on selection change in canlist.
 function canlist_Callback(hObject, eventdata, handles)
 % hObject    handle to canlist (see GCBO)
@@ -319,6 +343,7 @@ function canlist_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns canlist contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from canlist
+
 
 
 % --- Executes during object creation, after setting all properties.
