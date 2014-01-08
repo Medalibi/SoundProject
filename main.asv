@@ -22,9 +22,10 @@ function varargout = main(varargin)
 
 % Edit the above text to modify the response to help main
 
-% Last Modified by GUIDE v2.5 08-Jan-2014 11:36:29
+% Last Modified by GUIDE v2.5 08-Jan-2014 10:03:52
 
 % Begin initialization code - DO NOT EDIT
+
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...
@@ -82,21 +83,21 @@ function pushbutton1_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-axes(handles.axes1);
+axes(handles.original);
 cla;
 
 popup_sel_index = get(handles.codeurlist, 'Value');
 switch popup_sel_index
-    case axes1
+    case 1
+        plot(rand(5));
+    case 2
         plot(sin(1:0.01:25.99));
-    case axes2
-        plot(sin(1:0.01:25.99));
-    case axes3
-        plot(sin(1:0.01:25.99));
-    case axes4
-        plot(sin(1:0.01:25.99));
+    case 3
+        bar(1:.5:10);
+    case 4
+        plot(membrane);
     case 5
-        plot(sin(1:0.01:25.99));
+        surf(peaks);
 end
 
 
@@ -112,7 +113,7 @@ function OpenMenuItem_Callback(hObject, eventdata, handles)
 % hObject    handle to OpenMenuItem (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-file = uigetfile('*.wav');
+file = uigetfile('*.fig');
 if ~isequal(file, 0)
     open(file);
 end
@@ -161,7 +162,7 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
      set(hObject,'BackgroundColor','white');
 end
 
-%set(hObject, 'String', {'plot(rand(5))', 'plot(sin(1:0.01:25))', 'bar(1:.5:10)', 'plot(membrane)', 'surf(peaks)'});
+set(hObject, 'String', {'plot(rand(5))', 'plot(sin(1:0.01:25))', 'bar(1:.5:10)', 'plot(membrane)', 'surf(peaks)'});
 
 
 % --- Executes on selection change in list3.
@@ -199,12 +200,6 @@ function charge_Callback(hObject, eventdata, handles)
 % hObject    handle to charge (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-axes1= findobj(gcf,'Tag','axes1');
-sound = get(handles.filecontainer,'String');
-[x,Fe,n]= wavread(sound);
-plot(axes1,x);
-
-
 
 
 
@@ -216,13 +211,6 @@ function filecontainer_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of filecontainer as text
 %        str2double(get(hObject,'String')) returns contents of filecontainer as a double
 
-sound = get(hObject,'String');
-
-%checks to see if input is empty. if so, default inputsound to zero
-if (isempty(sound))
-     set(hObject,'String','sound.wav')
-end
-guidata(hObject, handles);
 
 % --- Executes during object creation, after setting all properties.
 function filecontainer_CreateFcn(hObject, eventdata, handles)
