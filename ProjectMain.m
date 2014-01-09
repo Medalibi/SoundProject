@@ -112,10 +112,21 @@ delete(handles.figure1)
 
 % --- Contain the file to load.
 function filecontainer_Callback(hObject, eventdata, handles)
-sound = get(hObject,'String');
+handles = guidata(hObject);
+handles.file = get(hObject,'String');
 if (isempty(sound))
      set(hObject,'String','sound.wav')
 end
+guidata(hObject, handles);
+
+function ecouter_Callback(hObject, eventdata, handles)
+handles = guidata(hObject);
+handles.Fe=44100*2;
+handles.n=2;
+handles.rec = audiorecorder(44100, 16, handles.n);
+recordblocking(handles.rec, 10);
+handles.x=getaudiodata(handles.rec);
+subplot(2,3,3),plot(handles.x);
 guidata(hObject, handles);
 
 % --- Executes on button press in charge.
@@ -127,7 +138,7 @@ subplot(2,3,3),plot(handles.x);
 guidata(hObject, handles);
 
 % --- Executes on button press in CAN.
-function CAN_Callback(hObject, eventdata, handles)
+function can_Callback(hObject, eventdata, handles)
 handles = guidata(hObject);
 handles.fc=handles.Fe/2;
 opr= get(handles.canlist,'value');
@@ -143,25 +154,37 @@ elseif opr == 3
     
 end;
 handles.x1=filter(handles.num,handles.dem,handles.x);
-subplot(2,3,4),plot(handles.x1);
+subplot(2,3,6),plot(handles.x1);
 guidata(hObject, handles);
 
 
 % --- Executes on button press in codeur.
-function codeur_Callback(hObject, eventdata, handles)
-handles = guidata(hObject);
-handles.A=87.56;
-handles.xmax=max(handles.x);
-handles.x2=(1+log(handles.A*abs(handles.x/handles.xmax)))/(1+log(handles.A));
+function coder_Callback(hObject, eventdata, handles)
+
 
 % --- Executes on button press in comp.
 function comp_Callback(hObject, eventdata, handles)
-% hObject    handle to comp (see GCBO)
+handles = guidata(hObject);
+opr= get(handles.complist,'value');
+u=255
+a=2
+if opr == 1
+    handles.A=87.56;
+    handles.xmax=max(handles.x);
+    handles.x2=(1+log(handles.A*abs(handles.x/handles.xmax)))/(1+log(handles.A));
+elseif opr == 2
+    handles.u=255;
+    handles.x2=sgn(handles.x)*((ln(1+handles.u*abs(handles.x)))/ln(1+handles.u));
+    
+end;
+subplot(2,3,5),plot(handles.x2);
+guidata(hObject, handles);
+
 
 
 
 % --- Executes on button press in trait.
-function trait_Callback(hObject, eventdata, handles)
+function filter_Callback(hObject, eventdata, handles)
 % hObject    handle to trait (see GCBO)
 
 
@@ -182,7 +205,7 @@ handles = guidata(hObject);
 sound(handles.x1,handles.Fe)
 
 % --- Executes on button press in playtrait.
-function playtrait_Callback(hObject, eventdata, handles)
+function playfilter_Callback(hObject, eventdata, handles)
 handles = guidata(hObject);
 sound(handles.x1,handles.Fe)
 
@@ -190,33 +213,18 @@ sound(handles.x1,handles.Fe)
 
 
 
-function codeurlist_Callback(hObject, eventdata, handles)
+function coderlist_Callback(hObject, eventdata, handles)
 % hObject    handle to codeurlist (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
 % --- Executes during object creation, after setting all properties.
-function codeurlist_CreateFcn(hObject, eventdata, handles)
+function coderlist_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to codeurlist (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
      set(hObject,'BackgroundColor','white');
-end
-
-% --- Executes on selection change in list3.
-function list3_Callback(hObject, eventdata, handles)
-% hObject    handle to list3 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% --- Executes during object creation, after setting all properties.
-function list3_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to list3 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
 end
 
 function filecontainer_CreateFcn(hObject, eventdata, handles)
@@ -226,12 +234,6 @@ function filecontainer_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
-% --- Executes on button press in app3.
-function app3_Callback(hObject, eventdata, handles)
-% hObject    handle to app3 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 
 % --- Executes on selection change in complist.
 function complist_Callback(hObject, eventdata, handles)
@@ -249,13 +251,13 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 % --- Executes on selection change in traitlist.
-function traitlist_Callback(hObject, eventdata, handles)
+function filterlist_Callback(hObject, eventdata, handles)
 % hObject    handle to traitlist (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
 % --- Executes during object creation, after setting all properties.
-function traitlist_CreateFcn(hObject, eventdata, handles)
+function filterlist_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to traitlist (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called

@@ -1,5 +1,5 @@
 %if ~exist('sig')
-    pcmfile='mozart.wav';
+    pcmfile='funky.wav';
     fid=fopen(pcmfile,'rb');
     pcmsig=fread(fid,inf,'int16',0,'n');
     fclose(fid);
@@ -9,7 +9,7 @@
     fs=8000;
     t=0/fs:1/fs:((lastsamp-1)/fs);
 %end
-
+sound(sig,fs);
 
 
 pow=2;
@@ -33,5 +33,5 @@ for k=2:length(quant)
     undif(k)=undif(k-1)+quant(k);
 end
 plot(undif);
-
+sound(undif);
 %plot(abs(sig2-undif')/max(abs(sig2)))

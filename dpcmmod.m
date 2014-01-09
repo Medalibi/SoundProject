@@ -5,7 +5,7 @@
 % plot(t,x);
 % %plot(y);
 % 
-pcmfile='C:\documents and settings\goldfita\Desktop\s';
+pcmfile='funky.wav';
 fid=fopen(pcmfile,'rb');
 pcmsig=fread(fid,inf,'int16',0,'n');
 fclose(fid);
@@ -75,11 +75,11 @@ for k=fc
         [b,a]=ellip(8,5,70,[(f-1)/12-.01 f/12+.01],'bandpass');
     end
     out=filter(b,a,stot);
-    %figure(k+1);freqz(b,a);
+    figure(k+1);freqz(b,a);
     out=out.*cos(2*pi*k*t);
     out=filter(b2,a2,out);
-    %figure(k+1);psd(out);
+    figure(k+1);psd(out);
     out=resample(out,1,up);
-    %figure(k+1);psd(out);
+    figure(k+1);psd(out);
     sout=[sout;out(:)];
 end
