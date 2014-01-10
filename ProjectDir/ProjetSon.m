@@ -291,104 +291,32 @@ function coder_Callback(hObject, eventdata, handles)
 handles = guidata(hObject);
 opr= get(handles.coderlist,'value');
 if opr == 1
-    %handles.x4=zeros(size(handles.x3));
-    handles.x4=[];
-    for i=1:length(handles.x3);
-        d=dec2bin(handles.x3(i),handles.n);
-        handles.x4=[handles.x4 double(d)-48];
-    end;
+    Mp = max (handles.x3);
+    bits = 8;
+    levels = 2^bits;
+    step_size = (2* Mp)/levels;
+    signS = sign (handles.x3);
+    handles.x4 = handles.x3;
+    for i = 1:length(handles.x3),
+        S(i) = abs(handles.x3(i)) + 0.5;
+        handles.x4(i) = signS(i)*round(S(i))*step_size;
+    end
 elseif opr == 2
-     handles.x4=zeros(size(handles.x3));
-     handles.x4(1)=handles.x3(1);
-     for k=2:length(handles.x3)
-         handles.x4(k)=handles.x4(k-1)+handles.x3(k);
-     end;
-
+    index = dpcm(handles.x3);
+    channel_sound = channelcoding(index);
+    mod_sound = modulation(channel_sound);
+    noisesignal = noise(mod_sound, 0.5);
+    demod_sound = demodulation(noisesignal);
+    decoded_index = ichannelcoding(demod_sound);
+    handles.x4 = idpcm(decoded_index);
+    
 elseif opr == 3
-    IndexTable = [-1, -1, -1, -1, 2, 4, 6, 8, -1, -1, -1, -1, 2, 4, 6, 8]; 
-          
-    StepSizeTable = [7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 19, 21, 23, 25, 28, 31, 34, 37, 41, 45, 50, 55, 60, 66, 73, 80, 88, 97, 107, 118, 130, 143, 157, 173, 190, 209, 230, 253, 279, 307, 337, 371, 408, 449, 494, 544, 598, 658, 724, 796, 876, 963, 1060, 1166, 1282, 1411, 1552, 1707, 1878, 2066, 2272, 2499, 2749, 3024, 3327, 3660, 4026, 4428, 4871, 5358, 5894, 6484, 7132, 7845, 8630, 9493, 10442, 11487, 12635, 13899, 15289, 16818, 18500, 20350, 22385, 24623, 27086, 29794, 32767]; 
- 
-    prevsample = 0; 
-    previndex = 1; 
- 
-    Ns = length(handles.x3); 
-    i = 1; 
- 
-    raw_y = 32767 * handles.x3;          % 16-bit operation 
- 
-while (i <= Ns) 
-    predsample = prevsample; 
-    index = previndex; 
-    step = StepSizeTable(index); 
- 
-    diff = raw_y(i) - predsample; 
-    if (diff >= 0) 
-        code = 0; 
-    else 
-        code = 8; 
-        diff = -diff; 
-    end 
- 
-    tempstep = step; 
-    if (diff >= tempstep) 
-        code = bitor(code, 4); 
-        diff = diff - tempstep; 
-    end 
-    tempstep = bitshift(tempstep, -1); 
-    if (diff >= tempstep) 
-        code = bitor(code, 2); 
-        diff = diff - tempstep; 
-    end 
-    tempstep = bitshift(tempstep, -1); 
-    if (diff >= tempstep) 
-        code = bitor(code, 1); 
-    end 
- 
-    diffq = bitshift(step, -3); 
-    if (bitand(code, 4)) 
-        diffq = diffq + step; 
-    end 
-    if (bitand(code, 2)) 
-        diffq = diffq + bitshift(step, -1); 
-    end 
-    if (bitand(code, 1)) 
-        diffq = diffq + bitshift(step, -2); 
-    end 
- 
-    if (bitand(code, 8)) 
-        predsample = predsample - diffq; 
-    else 
-        predsample = predsample + diffq; 
-    end 
- 
-    if (predsample > 32767) 
-        predsample = 32767; 
-    elseif (predsample < -32768) 
-        predsample = -32768; 
-    end 
- 
-    index = index + IndexTable(code+1); 
- 
-    if (index < 1) 
-        index = 1; 
-    end 
-    if (index > 89) 
-        index = 89; 
-    end 
- 
-    prevsample = predsample; 
-    previndex = index; 
- 
-    handles.x4(i) = bitand(code, 15); 
-     
-    i = i + 1; 
-end;
-elseif opr == 4
     M=10;  %prediction order
     [aCoeff, pitch_plot, voiced, gain] = f_ENCODER(handles.x3, handles.Fe, M);  %pitch_plot is pitch periods
     handles.x4 = f_DECODER (aCoeff, pitch_plot, voiced, gain);
-
+elseif opr == 5
+    
+    
 end;
 subplot(2,4,8),plot(handles.x4);
 %figure(2), plot(handles.x4);
@@ -431,7 +359,6 @@ if opr == 1
 elseif opr == 2
     handles.u=255;
     handles.x2=sign(handles.x).*((log(1+handles.u.*abs(handles.x)))/log(1+handles.u));
-    
 end;
 subplot(2,4,6),plot(handles.x2);
 guidata(hObject, handles);
@@ -481,16 +408,16 @@ if opr == 1
     end;
 elseif opr == 2
     pow=3;
-    %mi=min(handles.x2);
-    %ma=max(handles.x2+abs(mi));
-    %sig1=(handles.x2+abs(mi))/ma;
-    %sig2=(sig1*(2^pow-1)-2^(pow-1))*25;
-    %handles.x3=[];
-    handles.x3(1)=round(handles.x2(1));
+    mi=min(handles.x2);
+    ma=max(handles.x2+abs(mi));
+    sig1=(handles.x2+abs(mi))/ma;
+    sig2=(sig1*(2^pow-1)-2^(pow-1))*25;
+    handles.x3=[];
+    handles.x3(1)=round(sig2(1));
     predict=0;
-    for k=2:length(handles.x2)
+    for k=2:length(sig2)
         predict=handles.x3(k-1)+predict;
-        handles.x3(k)=round(handles.x2(k)-predict);
+        handles.x3(k)=round(sig2(k)-predict);
         if handles.x3(k)>2^(pow-1)-1; handles.x3(k)=2^(pow-1)-1; end;
         if handles.x3(k)<-2^(pow-1); handles.x3(k)=-2^(pow-1); end;
     end;
